@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"math"
+	"time"
 )
 
 const (
@@ -13,7 +14,17 @@ const (
 	heightMultiplier2 int     = 50
 )
 
+var BackgroundColor = color.RGBA{10, 10, 20, 255}
 var intervalOffset = 0
+
+func colorTransition(altitude float64) color.Color {
+	t := float64(time.Now().UnixNano()) / 1e9 * 0.5
+
+	red := uint8((math.Sin(t)*127 + 128) * altitude)
+	green := uint8((math.Sin(t+2*math.Pi/3)*127 + 128) * altitude)
+	blue := uint8((math.Sin(t+4*math.Pi/3)*127 + 128) * altitude)
+	return color.RGBA{red, green, blue, 255}
+}
 
 func drawRadar1() {
 	game.Terrain.Fill(color.Black)
@@ -66,9 +77,9 @@ func drawRadar2() {
 			// Normalize altitude
 			altitude = (altitude) / (altMax)
 
-			var clr uint8 = uint8(255 * altitude)
+			// var clr uint8 = uint8(255 * altitude)
 			var height int = y - int(altitude*float64(heightMultiplier2))
-			game.Terrain.Set(x, height, color.RGBA{clr, clr / 2, clr, 255})
+			game.Terrain.Set(x, height, colorTransition(altitude))
 		}
 	}
 	intervalOffset++
