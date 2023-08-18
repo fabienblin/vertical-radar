@@ -21,14 +21,14 @@ var (
 )
 
 type GameInstance struct {
-	Terrain   *ebiten.Image
+	Image   *ebiten.Image
 	X, Y      float64
 	Altitudes *perlin.Perlin
 }
 
 func initGame() *GameInstance {
 	g := &GameInstance{
-		Terrain:   ebiten.NewImage(ScreenWidth, ScreenHeight),
+		Image:   ebiten.NewImage(ScreenWidth, ScreenHeight),
 		X:         float64(ScreenWidth) / 2,
 		Y:         float64(ScreenHeight) / 2,
 		Altitudes: perlin.NewPerlin(Octaves, Persistence, Lacunarity, Seed),
@@ -49,8 +49,8 @@ func (g *GameInstance) Update() error {
 }
 
 func (g *GameInstance) Draw(screen *ebiten.Image) {
-	drawRadar3()
-	screen.DrawImage(g.Terrain, nil)
+	drawRadarDots()
+	screen.DrawImage(g.Image, nil)
 }
 
 func (g *GameInstance) Layout(outsideWidth, outsideHeight int) (int, int) {
