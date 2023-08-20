@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"math"
 	"time"
+	// "github.com/StephaneBunel/bresenham"
 )
 
 const (
@@ -82,10 +83,6 @@ func drawLine(p1, p2 Position, clr color.Color) {
 	}
 }
 
-func abs(dy int) {
-	panic("unimplemented")
-}
-
 func drawRadarLines() {
 	game.Image.Fill(color.Black)
 	const radarInterval int = 10
@@ -107,7 +104,7 @@ func drawRadarLines() {
 func drawRadarDots() {
 	game.Image.Fill(color.Black)
 	const radarInterval int = 5
-	var xdelta float64 = (float64(radarInterval) * float64(1.8))
+	var xDelta float64 = (float64(radarInterval) * float64(1.8))
 
 	// Calculate altitude normalization bounds
 	altMax := (ContinentRadius + noiseMultiplier)
@@ -115,7 +112,7 @@ func drawRadarDots() {
 	for y := 0; y < ScreenHeight; y += radarInterval {
 		x := 0
 		if (y/2)%radarInterval == 0 {
-			x += int(xdelta) / 2
+			x += int(xDelta) / 2
 		}
 		for x < ScreenWidth {
 			altitude := getAltitude(x, y, altMax)
@@ -127,52 +124,62 @@ func drawRadarDots() {
 			game.Image.Set(x, height+1, clr)
 			game.Image.Set(x+1, height+1, clr)
 
-			x += int(xdelta)
+			x += int(xDelta)
 		}
 	}
 	intervalOffsetY++
 }
 
+/**
+ * This figure shows how positions are defined for drawing triangles
+ *   2     3
+ *    \   /
+ * 1----0
+ */
 func drawRadarTriangles() {
 	game.Image.Fill(color.Black)
-	const radarInterval int = 5
-	var xdelta float64 = (float64(radarInterval) * float64(1.8))
-	var prevPos1 *Position = nil
-
-	// Calculate altitude normalization bounds
+	const radarInterval int = 20
+	var xDelta float64 = (float64(radarInterval) * 1.8)
+	var xDeltaHalf float64 = xDelta / 2
 	altMax := (ContinentRadius + noiseMultiplier)
+	positions := [][]Position{}
 
 	for y := 0; y < ScreenHeight; y += radarInterval {
-		var prevPos2 *Position = nil
-		// var prevPos3 *Position = nil
-		var tmpPrevPos2 *Position = nil
-		// var tmpPrevPos3 *Position = nil
 		x := 0
 		if (y/2)%radarInterval == 0 {
-			x += int(xdelta) / 2
+			x += int(xDeltaHalf)
 		}
+		posLine := []Position{}
 		for x < ScreenWidth {
 			altitude := getAltitude(x, y, altMax)
+			height := y - int(altitude*float64(heightMultiplier2))
+			posLine = append(posLine, Position{x, height, altitude})
 
-			// var height int = y - int(altitude*float64(heightMultiplier2))
-			// game.Image.Set(x, y, colorTransition(altitude))
-			currentPos := Position{x, y}
-			if prevPos1 != nil {
-				drawLine(currentPos, *prevPos1, colorTransition(altitude))
-			}
-			if prevPos2 != nil {
-				drawLine(currentPos, *prevPos2, colorTransition(altitude))
-			} else {
-				tmpPrevPos2 = &currentPos
-			}
-			// if prevPos3 != nil {
-			// 	drawLine(currentPos, *prevPos3, colorTransition(altitude))
-			// }
-			prevPos1 = &currentPos
-
-			x += int(xdelta)
+			x += int(xDelta)
 		}
-		prevPos2 = tmpPrevPos2
+		positions = append(positions, posLine)
 	}
+
+	for i, posLine := range positions {
+		for j, pos := range posLine {
+			iOff := i % 2
+			if j > 0 { // position 1
+				drawLine(pos, posLine[j-1], colorTransition(posLine[j-1].altitude))
+			}
+			if i > 0 && j > 0 { // position 2
+				drawLine(pos, positions[i-1][j-iOff], colorTransition(pos.altitude))
+			}
+			if i > 0 && j < len(positions[i-1]) { // position 3
+				drawLine(pos, positions[i-1][j+1-iOff], colorTransition(pos.altitude))
+			}
+		}
+	}
+
+	// test comment
+	// for _, posLine := range positions {
+	// 	for _, pos := range posLine {
+	// 		game.Image.Set(pos.x, pos.y, color.White)
+	// 	}
+	// }
 	intervalOffsetY++
 }

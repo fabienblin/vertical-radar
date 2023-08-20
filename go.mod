@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/StephaneBunel/bresenham v0.0.0-20211027152503-ec76d7b8e923
 	github.com/ebitengine/purego v0.4.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/jezek/xgb v1.1.0 // indirect

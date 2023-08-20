@@ -18,6 +18,7 @@ func main() {
 
 type Position struct {
 	x, y int
+	altitude float64
 }
 
 func XOFF(x int) float64 {

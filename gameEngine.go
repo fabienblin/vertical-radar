@@ -49,7 +49,7 @@ func (g *GameInstance) Update() error {
 }
 
 func (g *GameInstance) Draw(screen *ebiten.Image) {
-	drawRadarDots()
+	drawRadarTriangles()
 	screen.DrawImage(g.Image, nil)
 }
 
